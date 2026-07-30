@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics — AI Detector</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(90px);
+            pointer-events: none;
+            z-index: 0;
+            animation: orbFloat 9s ease-in-out infinite;
+        }
+        .orb-1 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(52,211,153,0.09), transparent 70%);
+            top: -100px; right: -80px;
+        }
+        .orb-2 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(96,165,250,0.09), transparent 70%);
+            bottom: -100px; left: -80px;
+            animation-delay: -4s;
+        }
+        @keyframes orbFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-28px); }
+        }
+
+        .page-wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 48px 32px 80px;
+        }
+
+        /* ── HEADER ── */
+        .analytics-header {
+            margin-bottom: 40px;
+            animation: fadeDown 0.6s ease forwards;
+        }
+
+        .analytics-header p {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            color: #34d399;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .analytics-header h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: 28px;
+            font-weight: 900;
+            background: linear-gradient(90deg, #f1f5f9, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+        }
+
+        /* ── STAT PILLS ── */
+        .stat-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+            animation: fadeUp 0.6s ease 0.1s forwards;
+            opacity: 0;
+        }
+
+        .stat-pill {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 22px 24px;
+            backdrop-filter: blur(14px);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .stat-pill::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 2px;
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+            border-radius: 99px;
+        }
+
+        .stat-pill.total::after  { background: linear-gradient(90deg, #60a5fa, #a78bfa); }
+        .stat-pill.real::after   { background: linear-gradient(90deg, #10b981, #34d399); }
+        .stat-pill.hallu::after  { background: linear-gradient(90deg, #ef4444, #f87171); }
+
+        .stat-pill:hover { transform: translateY(-4px); }
+        .stat-pill:hover::after { transform: scaleX(1); }
+
+        .pill-label {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(148,163,184,0.55);
+            margin-bottom: 10px;
+        }
+
+        .pill-value {
+            font-family: 'Orbitron', monospace;
+            font-size: 38px;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .stat-pill.total .pill-value { color: #60a5fa; }
+        .stat-pill.real  .pill-value { color: #34d399; }
+        .stat-pill.hallu .pill-value { color: #f87171; }
+
+        /* ── CHART GRID ── */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            animation: fadeUp 0.6s ease 0.2s forwards;
+            opacity: 0;
+        }
+
+        .chart-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 32px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 10%; right: 10%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(52,211,153,0.4), transparent);
+        }
+
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .chart-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            color: #34d399;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-title span {
+            font-size: 16px;
+        }
+
+        .chart-canvas-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ── BOTTOM LINKS ── */
+        .bottom-links {
+            display: flex;
+            gap: 12px;
+            margin-top: 28px;
+            animation: fadeUp 0.6s ease 0.3s forwards;
+            opacity: 0;
+        }
+
+        .link-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 22px;
+            border: 1px solid rgba(96,165,250,0.25);
+            border-radius: 8px;
+            text-decoration: none;
+            color: #60a5fa;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            transition: all 0.25s ease;
+        }
+
+        .link-back:hover {
+            background: rgba(96,165,250,0.07);
+            border-color: rgba(96,165,250,0.5);
+            transform: translateY(-2px);
+        }
+
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 700px) {
+            .charts-grid { grid-template-columns: 1fr; }
+            .stat-row    { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <h2>AI Detector</h2>
+        <div class="nav-links">
+            <a href="/user/dashboard">Dashboard</a>
+            <a href="/user/predict">Predict</a>
+            <a href="/history">History</a>
+            <a href="/user/analytics" class="active">Analytics</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="page-wrapper">
+
+        <!-- HEADER -->
+        <div class="analytics-header">
+            <p>📊 Insights</p>
+            <h1>Prediction Analytics</h1>
+        </div>
+
+        <!-- STAT PILLS — pass these from Flask if available, else remove -->
+        <div class="stat-row">
+            <div class="stat-pill total">
+                <div class="pill-label">Total Predictions</div>
+                <div class="pill-value">{{ total if total is defined else '—' }}</div>
+            </div>
+            <div class="stat-pill real">
+                <div class="pill-label">Real Answers</div>
+                <div class="pill-value">{{ real if real is defined else '—' }}</div>
+            </div>
+            <div class="stat-pill hallu">
+                <div class="pill-label">Hallucinated</div>
+                <div class="pill-value">{{ hallucinated if hallucinated is defined else '—' }}</div>
+            </div>
+        </div>
+
+        <!-- CHARTS -->
+        <div class="charts-grid">
+
+            <!-- PIE CHART -->
+            <div class="chart-card">
+                <div class="chart-title"><span>🥧</span> Real vs Hallucinated</div>
+                <div class="chart-canvas-wrap">
+                    <canvas id="pieChart" height="240"></canvas>
+                </div>
+            </div>
+
+            <!-- BAR CHART -->
+            <div class="chart-card">
+                <div class="chart-title"><span>📊</span> Distribution</div>
+                <div class="chart-canvas-wrap">
+                    <canvas id="barChart" height="240"></canvas>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- BOTTOM LINKS -->
+        <div class="bottom-links">
+            <a href="/user/dashboard" class="link-back">← Dashboard</a>
+        </div>
+
+    </div>
+
+    <script>
+        // ── Chart.js global defaults ──
+        Chart.defaults.color = 'rgba(148,163,184,0.7)';
+        Chart.defaults.font.family = "'Rajdhani', sans-serif";
+        Chart.defaults.font.size = 13;
+
+        // ── Data from Flask (keep your existing variable names) ──
+        const realCount        = {{ real if real is defined else 0 }};
+        const halluCount       = {{ hallucinated if hallucinated is defined else 0 }};
+        const labels           = ['Real', 'Hallucinated'];
+        const data             = [realCount, halluCount];
+
+        // ── PIE CHART ──
+        const pieCtx = document.getElementById('pieChart').getContext('2d');
+        new Chart(pieCtx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: [
+                        'rgba(52, 211, 153, 0.75)',
+                        'rgba(248, 113, 113, 0.75)'
+                    ],
+                    borderColor: [
+                        'rgba(52, 211, 153, 1)',
+                        'rgba(248, 113, 113, 1)'
+                    ],
+                    borderWidth: 1.5,
+                    hoverOffset: 10
+                }]
+            },
+            options: {
+                responsive: true,
+                cutout: '65%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true,
+                            pointStyleWidth: 10,
+                            color: 'rgba(148,163,184,0.8)'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(15,23,42,0.95)',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        padding: 12,
+                        callbacks: {
+                            label: (ctx) => ` ${ctx.label}: ${ctx.raw} predictions`
+                        }
+                    }
+                }
+            }
+        });
+
+        // ── BAR CHART ──
+        const barCtx = document.getElementById('barChart').getContext('2d');
+        new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Predictions',
+                    data: data,
+                    backgroundColor: [
+                        'rgba(52, 211, 153, 0.2)',
+                        'rgba(248, 113, 113, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(52, 211, 153, 0.9)',
+                        'rgba(248, 113, 113, 0.9)'
+                    ],
+                    borderWidth: 1.5,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: 'rgba(15,23,42,0.95)',
+                        borderColor: 'rgba(255,255,255,0.1)',
+                        borderWidth: 1,
+                        padding: 12,
+                        callbacks: {
+                            label: (ctx) => ` ${ctx.raw} predictions`
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255,255,255,0.04)' },
+                        ticks: { color: 'rgba(148,163,184,0.7)' }
+                    },
+                    y: {
+                        grid: { color: 'rgba(255,255,255,0.04)' },
+                        ticks: {
+                            color: 'rgba(148,163,184,0.7)',
+                            stepSize: 1
+                        },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+<br>
+
+<a href="/user/dashboard">Back to Dashboard</a>
+<br><br>
+<a href="/logout">Log Out</a>
+
+<script>
+
+const real = {{ real | tojson }};
+const hallucinated = {{ hallucinated | tojson }};
+
+const data = {
+    labels: ['Real Predictions', 'Hallucinated Predictions'],
+    datasets: [{
+        data: [real, hallucinated],
+        backgroundColor: ['green', 'red']
+    }]
+};
+
+const config = {
+    type: 'pie',
+    data: data,
+    options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+};
+
+const ctx = document.getElementById('myChart');
+
+new Chart(ctx, config);
+
+</script>
+
+</body>
+</html>

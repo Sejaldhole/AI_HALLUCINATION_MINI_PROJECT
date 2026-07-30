@@ -1,0 +1,537 @@
+question,answer,label
+What is the capital of France?,Paris,0
+What is the capital of France?,Lyon,1
+
+Who wrote Romeo and Juliet?,Shakespeare,0
+Who wrote Romeo and Juliet?,Dickens,1
+
+What is the boiling point of water?,100C,0
+What is the boiling point of water?,70C,1
+
+Who discovered gravity?,Newton,0
+Who discovered gravity?,Einstein,1
+
+What is the largest planet?,Jupiter,0
+What is the largest planet?,Venus,1
+
+Who painted the Mona Lisa?,DaVinci,0
+Who painted the Mona Lisa?,Picasso,1
+
+Chemical symbol for gold?,Au,0
+Chemical symbol for gold?National animal of India?,Go,1
+
+Who invented the telephone?,Bell,0
+Who invented the telephone?,Edison,1
+
+Tallest mountain?,Everest,0
+Tallest mountain?,Kilimanjaro,1
+
+Speed of light?,299792kmps,0
+Speed of light?,150000kmps,1
+
+Capital of India?,NewDelhi,0
+Capital of India?,Mumbai,1
+
+,Tiger,0
+National animal of India?,Lion,1
+
+National bird of India?,Peacock,0
+National bird of India?,Sparrow,1
+
+India independence year?,1947,0
+India independence year?,1950,1
+
+First Prime Minister of India?,Nehru,0
+First Prime Minister of India?,Gandhi,1
+
+Currency of USA?,Dollar,0
+Currency of USA?,Euro,1
+
+Largest ocean?,Pacific,0
+Largest ocean?,Atlantic,1
+
+Square root of 64?,8,0
+Square root of 64?,6,1
+
+Red planet?,Mars,0
+Red planet?,Venus,1
+
+Freezing point of water?,0C,0
+Freezing point of water?,10C,1
+
+Capital of Germany?,Berlin,0
+Capital of Germany?,Munich,1
+
+Smallest prime number?,2,0
+Smallest prime number?,1,1
+
+Tallest animal?,Giraffe,0
+Tallest animal?,Elephant,1
+
+Main gas in atmosphere?,Nitrogen,0
+Main gas in atmosphere?,Oxygen,1
+
+Speed of sound?,343mps,0
+Speed of sound?,1000mps,1
+
+Capital of Australia?,Canberra,0
+Capital of Australia?,Sydney,1
+
+Largest mammal?,BlueWhale,0
+Largest mammal?,Elephant,1
+
+Fastest land animal?,Cheetah,0
+Fastest land animal?,Horse,1
+
+Powerhouse of cell?,Mitochondria,0
+Powerhouse of cell?,Nucleus,1
+
+Atomic number 1?,Hydrogen,0
+Atomic number 1?,Helium,1
+
+Longest human bone?,Femur,0
+Longest human bone?,Tibia,1
+
+Largest desert?,Sahara,0
+Largest desert?,Gobi,1
+
+Inventor of light bulb?,Edison,0
+Inventor of light bulb?,Tesla,1
+
+Chemical formula of water?,H2O,0
+Chemical formula of water?,HO2,1
+
+Fastest planet?,Mercury,0
+Fastest planet?,Jupiter,1
+
+Deepest ocean?,Pacific,0
+Deepest ocean?,Indian,1
+
+Author of Hamlet?,Shakespeare,0
+Author of Hamlet?,Tolstoy,1
+
+Largest continent?,Asia,0
+Largest continent?,Africa,1
+
+Smallest continent?,Australia,0
+Smallest continent?,Europe,1
+
+First President of USA?,Washington,0
+First President of USA?,Lincoln,1
+
+Inventor of WWW?,BernersLee,0
+Inventor of WWW?,Gates,1
+
+SI unit of force?,Newton,0
+SI unit of force?,Joule,1
+
+Currency of Japan?,Yen,0
+Currency of Japan?,Won,1
+
+Capital of China?,Beijing,0
+Capital of China?,Shanghai,1
+
+Largest bone?,Femur,0
+Largest bone?,Humerus,1
+
+Gas essential for breathing?,Oxygen,0
+Gas essential for breathing?,Nitrogen,1
+
+Planet with rings?,Saturn,0
+Planet with rings?,Earth,1
+
+Hardest natural substance?,Diamond,0
+Hardest natural substance?,Iron,1
+
+Inventor of telephone?,Bell,0
+Inventor of telephone?,Marconi,1
+
+Founder of Microsoft?,Gates,0
+Founder of Microsoft?,Jobs,1
+
+Founder of Apple?,Jobs,0
+Founder of Apple?,Zuckerberg,1
+
+CPU stands for?,CentralProcessingUnit,0
+CPU stands for?,ComputerPowerUnit,1
+
+HTML stands for?,HyperTextMarkupLanguage,0
+HTML stands for?,HighTransferMachineLanguage,1
+
+Binary base?,2,0
+Binary base?,10,1
+
+Decimal base?,10,0
+Decimal base?,8,1
+
+Earth satellite?,Moon,0
+Earth satellite?,Phobos,1
+
+Inventor of relativity?,Einstein,0
+Inventor of relativity?,Bohr,1
+
+Longest river?,Nile,0
+Longest river?,Amazon,1
+
+Largest country by area?,Russia,0
+Largest country by area?,Canada,1
+
+Metal liquid at room temperature?,Mercury,0
+Metal liquid at room temperature?,Iron,1
+
+First man on Moon?,Armstrong,0
+First man on Moon?,Aldrin,1
+
+Speed unit?,MeterPerSecond,0
+Speed unit?,Newton,1
+
+Capital of Italy?,Rome,0
+Capital of Italy?,Milan,1
+
+Currency of UK?,Pound,0
+Currency of UK?,Euro,1
+
+Organ for vision?,Eye,0
+Organ for vision?,Ear,1
+
+Device for computing?,Computer,0
+Device for computing?,Printer,1
+
+Language of Brazil?,Portuguese,0
+Language of Brazil?,Spanish,1
+
+Largest internal organ?,Liver,0
+Largest internal organ?,Heart,1
+
+Inventor of electricity?,Faraday,0
+Inventor of electricity?,Darwin,1
+
+World tallest building?,BurjKhalifa,0
+World tallest building?,EmpireState,1
+
+What data structure uses LIFO?,Stack,0
+What data structure uses LIFO?,Queue,1
+
+Which algorithm uses divide and conquer?,MergeSort,0
+Which algorithm uses divide and conquer?,BubbleSort,1
+
+Time complexity of binary search?,Ologn,0
+Time complexity of binary search?,On,1
+
+Primary key property?,Unique,0
+Primary key property?,Duplicate,1
+
+SQL command to retrieve data?,SELECT,0
+SQL command to retrieve data?,DELETE,1
+
+Protocol for web browsing?,HTTP,0
+Protocol for web browsing?,FTP,1
+
+Port number for HTTP?,80,0
+Port number for HTTP?,25,1
+
+Which layer handles encryption?,Presentation,0
+Which layer handles encryption?,Physical,1
+
+Deadlock condition?,CircularWait,0
+Deadlock condition?,Preemption,1
+
+Scheduling algorithm example?,RoundRobin,0
+Scheduling algorithm example?,DepthFirst,1
+
+Database model example?,Relational,0
+Database model example?,Linear,1
+
+NoSQL example?,MongoDB,0
+NoSQL example?,MySQL,1
+
+Language for Android?,Kotlin,0
+Language for Android?,Swift,1
+
+Git command to upload?,Push,0
+Git command to upload?,Clone,1
+
+HTML file extension?,html,0
+HTML file extension?,exe,1
+
+CSS purpose?,Styling,0
+CSS purpose?,Compiling,1
+
+Java is?,OOP,0
+Java is?,Markup,1
+
+Python is?,Interpreted,0
+Python is?,CompiledOnly,1
+
+Which search uses stack?,DFS,0
+Which search uses stack?,BFS,1
+
+Tree root position?,Top,0
+Tree root position?,Bottom,1
+
+Graph cycle detection uses?,DFS,0
+Graph cycle detection uses?,SelectionSort,1
+
+Normalization form example?,3NF,0
+Normalization form example?,5GL,1
+
+OSI layers count?,7,0
+OSI layers count?,5,1
+
+IP version common?,IPv4,0
+IP version common?,IPv7,1
+
+RAM type?,Volatile,0
+RAM type?,Permanent,1
+
+ROM type?,NonVolatile,0
+ROM type?,Temporary,1
+
+Compiler output?,MachineCode,0
+Compiler output?,SourceCode,1
+
+Interpreter translates?,LineByLine,0
+Interpreter translates?,WholeProgram,1
+
+Machine learning type?,Supervised,0
+Machine learning type?,Encrypted,1
+
+Clustering is?,Unsupervised,0
+Clustering is?,ReinforcementOnly,1
+
+Overfitting means?,Memorization,0
+Overfitting means?,Generalization,1
+
+Hash table uses?,Hashing,0
+Hash table uses?,Sorting,1
+
+Queue implementation uses?,LinkedList,0
+Queue implementation uses?,HeapOnly,1
+
+Binary tree children max?,2,0
+Binary tree children max?,3,1
+
+File extension for Python?,py,0
+File extension for Python?,java,1
+
+Keyword to define function in Python?,def,0
+Keyword to define function in Python?,function,1
+
+Loop keyword in Java?,for,0
+Loop keyword in Java?,loop,1
+
+Java entry method?,main,0
+Java entry method?,start,1
+
+C language header for input output?,stdio,0
+C language header for input output?,iostream,1
+
+Python list method to add element?,append,0
+Python list method to add element?,insertAll,1
+
+Keyword for inheritance in Java?,extends,0
+Keyword for inheritance in Java?,inherits,1
+
+JavaScript variable keyword modern?,let,0
+JavaScript variable keyword modern?,varOnly,1
+
+Boolean value in Python?,True,0
+Boolean value in Python?,TRUE,1
+
+Comment symbol in Python?,#,0
+Comment symbol in Python?,//,1
+
+Keyword for class in Java?,class,0
+Keyword for class in Java?,object,1
+
+SQL command to insert data?,INSERT,0
+SQL command to insert data?,ADDROW,1
+
+JavaScript output function?,console,0
+JavaScript output function?,printJS,1
+
+Python package manager?,pip,0
+Python package manager?,npm,1
+
+NodeJS package manager?,npm,0
+NodeJS package manager?,pip,1
+
+C++ standard namespace?,std,0
+C++ standard namespace?,system,1
+
+HTML heading tag?,h1,0
+HTML heading tag?,head1,1
+
+CSS property for color?,color,0
+CSS property for color?,fontcolor,1
+
+Python framework for web?,Django,0
+Python framework for web?,Laravel,1
+
+Java framework?,Spring,0
+Java framework?,React,1
+
+Frontend library?,React,0
+Frontend library?,Flask,1
+
+Backend JavaScript runtime?,NodeJS,0
+Backend JavaScript runtime?,Angular,1
+
+Python data type immutable?,tuple,0
+Python data type immutable?,list,1
+
+Error handling keyword Python?,try,0
+Error handling keyword Python?,catchonly,1
+
+Java exception keyword?,catch,0
+Java exception keyword?,except,1
+
+C memory allocation function?,malloc,0
+C memory allocation function?,allocMem,1
+
+Python dictionary braces?,curly,0
+Python dictionary braces?,square,1
+
+Java primitive type example?,int,0
+Java primitive type example?,String,1
+
+Python indentation required?,Yes,0
+Python indentation required?,No,1
+
+Compiled language example?,C,0
+Compiled language example?,Python,1
+
+Interpreted language example?,Python,0
+Interpreted language example?,COnly,1
+
+Version control system?,Git,0
+Version control system?,Docker,1
+
+Containerization tool?,Docker,0
+Containerization tool?,GitHub,1
+
+IDE example?,VSCode,0
+IDE example?,Chrome,1
+
+Python keyword for loop?,while,0
+Python keyword for loop?,loopfor,1
+
+Database query language?,SQL,0
+Database query language?,HTML,1
+
+React uses?,JSX,0
+React uses?,JVM,1
+
+Function return keyword?,return,0
+Function return keyword?,giveback,1
+
+National flag colors count of India?,3,0
+National flag colors count of India?,4,1
+
+First President of India?,RajendraPrasad,0
+First President of India?,Nehru,1
+
+Largest state by area?,Rajasthan,0
+Largest state by area?,Bihar,1
+
+Smallest state by area in India?,Goa,0
+Smallest state by area India?,Punjab,1
+
+National river in India?,Ganga,0
+National river in India?,Yamuna,1
+
+National song of India?,VandeMataram,0
+National song of India?,SaareJahanSeAccha,1
+
+National emblem source of India?,Ashoka,0
+National emblem source of India?,Mughal,1
+
+Indian space agency of India?,ISRO,0
+Indian space agency of India?,NASAIndia,1
+
+Indian IT hub in India?,Bangalore,0
+Indian IT hub in India?,Lucknow,1
+
+Gateway of India location?,Mumbai,0
+Gateway of India location?,Delhi,1
+
+Taj Mahal city?,Agra,0
+Taj Mahal city?,Jaipur,1
+
+Indian parliament house?,Sansad,0
+Indian parliament house?,RajBhavan,1
+
+Official language union in India?,Hindi,0
+Official language union in India?,SanskritOnly,1
+
+Indian banking regulator in India?,RBI,0
+Indian banking regulator in India?,SEBIOnly,1
+
+Indian stock exchange?,NSE,0
+Indian stock exchange?,IRS,1
+
+National animal of India?,Tiger,0
+National animal of India?,Elephant,1
+
+National bird of India?,Peacock,0
+National bird of India?,Crow,1
+
+National flower of India?,Lotus,0
+National flower of India?,Rose,1
+
+Indian missile program?,Agni,0
+Indian missile program?,Falcon,1
+
+Indian tech institute?,IIT,0
+Indian tech institute?,MITIndia,1
+
+Indian festival of lights?,Diwali,0
+Indian festival of lights?,HoliWinter,1
+
+Indian classical dance?,Bharatanatyam,0
+Indian classical dance?,KathakaliModern,1
+
+Indian independence year?,1947,0
+Indian independence year?,1952,1
+
+Longest river India?,Ganga,0
+Longest river India?,Godavari,1
+
+Indian census interval?,10,0
+Indian census interval?,5,1
+
+Indian emergency year?,1975,0
+Indian emergency year?,1965,1
+
+Indian supreme court location?,Delhi,0
+Indian supreme court location?,Mumbai,1
+
+Indian missile defense?,Akash,0
+Indian missile defense?,PatriotIndia,1
+
+Indian economic reform year?,1991,0
+Indian economic reform year?,2001,1
+
+Indian Nobel laureate literature?,Tagore,0
+Indian Nobel laureate literature?,Premchand,1
+
+Indian metro first city?,Kolkata,0
+Indian metro first city?,Delhi,1
+
+Indian highest civilian award?,BharatRatna,0
+Indian highest civilian award?,PadmaShriTop,1
+
+Indian railway minister first?,Shanmukham,0
+Indian railway minister first?,Patel,1
+
+Indian Mars mission?,Mangalyaan,0
+Indian Mars mission?,ChandrayaanMars,1
+
+Indian constitution architect?,Ambedkar,0
+Indian constitution architect?,GandhiLaw,1
+
+Indian planning body old?,PlanningCommission,0
+Indian planning body old?,FinanceBoard,1
+
+Indian GST year?,2017,0
+Indian GST year?,2015,1

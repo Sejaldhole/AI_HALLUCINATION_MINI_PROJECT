@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Users — Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(90px);
+            pointer-events: none;
+            z-index: 0;
+            animation: orbFloat 9s ease-in-out infinite;
+        }
+        .orb-1 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(239,68,68,0.09), transparent 70%);
+            top: -120px; left: -80px;
+        }
+        .orb-2 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(251,146,60,0.07), transparent 70%);
+            bottom: -100px; right: -80px;
+            animation-delay: -4s;
+        }
+        @keyframes orbFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-28px); }
+        }
+
+        .scanline {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(239,68,68,0.25), transparent);
+            animation: scanDown 7s linear infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+        @keyframes scanDown {
+            0%   { top: -2px; opacity: 0; }
+            10%  { opacity: 1; }
+            90%  { opacity: 1; }
+            100% { top: 100vh; opacity: 0; }
+        }
+
+        .navbar {
+            background: rgba(20,4,4,0.6) !important;
+            border-bottom: 1px solid rgba(239,68,68,0.15) !important;
+        }
+        .navbar h2 {
+            background: linear-gradient(90deg, #f87171, #fb923c) !important;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .nav-links a:hover {
+            color: #f87171 !important;
+            background: rgba(239,68,68,0.08) !important;
+            border-color: rgba(239,68,68,0.2) !important;
+        }
+
+        .admin-nav-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.25);
+            border-radius: 50px;
+            padding: 4px 12px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            color: #f87171;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-left: 8px;
+        }
+
+        .badge-dot {
+            width: 5px; height: 5px;
+            background: #f87171;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.3; }
+        }
+
+        .page-wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 48px 32px 80px;
+        }
+
+        /* ── HEADER ── */
+        .page-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-bottom: 36px;
+            flex-wrap: wrap;
+            gap: 16px;
+            animation: fadeDown 0.6s ease forwards;
+        }
+
+        .header-left p {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            color: #f87171;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .header-left h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: 26px;
+            font-weight: 900;
+            background: linear-gradient(90deg, #f1f5f9, #f87171);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+        }
+
+        .user-count-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(248,113,113,0.08);
+            border: 1px solid rgba(248,113,113,0.2);
+            border-radius: 50px;
+            padding: 8px 20px;
+            font-family: 'Orbitron', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: #f87171;
+        }
+
+        /* ── ADD USER CARD ── */
+        .add-user-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(239,68,68,0.15);
+            border-radius: 16px;
+            padding: 24px 28px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(16px);
+            animation: fadeUp 0.6s ease 0.05s forwards;
+            opacity: 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .add-user-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 10%; right: 10%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(239,68,68,0.4), transparent);
+        }
+
+        .add-user-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            color: #f87171;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-user-form {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            /* Override global form styles */
+            background: none;
+            border: none;
+            padding: 0;
+            border-radius: 0;
+            max-width: 100%;
+        }
+
+        .add-user-form::before { display: none; }
+
+        .add-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex: 1;
+            min-width: 160px;
+        }
+
+        .add-field label {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(248,113,113,0.7);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .add-field input {
+            padding: 12px 16px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(239,68,68,0.15);
+            border-radius: 10px;
+            color: #f1f5f9;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.25s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .add-field input::placeholder { color: rgba(148,163,184,0.35); }
+        .add-field input:focus {
+            border-color: rgba(239,68,68,0.4);
+            background: rgba(239,68,68,0.05);
+            box-shadow: 0 0 0 3px rgba(239,68,68,0.07);
+        }
+
+        .add-btn {
+            padding: 12px 28px;
+            background: linear-gradient(135deg, #dc2626, #ea580c);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-family: 'Orbitron', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 20px rgba(220,38,38,0.25);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .add-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(220,38,38,0.4);
+        }
+
+        /* ── SEARCH ── */
+        .search-wrap {
+            margin-bottom: 20px;
+            animation: fadeUp 0.6s ease 0.1s forwards;
+            opacity: 0;
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 14px 18px 14px 48px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(239,68,68,0.15);
+            border-radius: 12px;
+            color: #f1f5f9;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.25s ease;
+            box-sizing: border-box;
+        }
+
+        #searchInput::placeholder { color: rgba(148,163,184,0.35); }
+        #searchInput:focus {
+            border-color: rgba(239,68,68,0.35);
+            background: rgba(239,68,68,0.04);
+            box-shadow: 0 0 0 3px rgba(239,68,68,0.07);
+        }
+
+        /* ── TABLE CARD ── */
+        .table-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 20px;
+            overflow: hidden;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            animation: fadeUp 0.6s ease 0.15s forwards;
+            opacity: 0;
+            position: relative;
+        }
+
+        .table-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 10%; right: 10%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(239,68,68,0.45), transparent);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+
+        thead tr {
+            background: rgba(239,68,68,0.06);
+            border-bottom: 1px solid rgba(239,68,68,0.12);
+        }
+
+        th {
+            padding: 16px 20px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: #f87171;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            text-align: left;
+            background: transparent;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: rgba(239,68,68,0.04); }
+
+        td {
+            padding: 16px 20px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 14px;
+            color: rgba(148,163,184,0.8);
+            border-bottom: none;
+        }
+
+        .id-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            height: 32px;
+            padding: 0 8px;
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.2);
+            border-radius: 8px;
+            font-family: 'Orbitron', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            color: #f87171;
+        }
+
+        .username-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 34px; height: 34px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, rgba(248,113,113,0.3), rgba(251,146,60,0.3));
+            border: 1px solid rgba(248,113,113,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .username-text {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: #f1f5f9;
+        }
+
+        /* ── DELETE BUTTON ── */
+        .delete-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            background: rgba(248,113,113,0.08);
+            border: 1px solid rgba(248,113,113,0.25);
+            border-radius: 8px;
+            color: #f87171;
+            text-decoration: none;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: all 0.25s ease;
+            cursor: pointer;
+        }
+
+        .delete-btn:hover {
+            background: rgba(248,113,113,0.18);
+            border-color: rgba(248,113,113,0.5);
+            transform: scale(1.04);
+            box-shadow: 0 4px 16px rgba(248,113,113,0.2);
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 80px 40px;
+        }
+        .empty-icon { font-size: 48px; margin-bottom: 16px; display: block; opacity: 0.4; }
+        .empty-state h3 {
+            font-family: 'Orbitron', monospace;
+            font-size: 14px;
+            color: rgba(148,163,184,0.4);
+            letter-spacing: 2px;
+        }
+
+        /* ── BOTTOM ── */
+        .bottom-links {
+            display: flex;
+            gap: 12px;
+            margin-top: 28px;
+            animation: fadeUp 0.6s ease 0.25s forwards;
+            opacity: 0;
+        }
+
+        .link-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 22px;
+            border: 1px solid rgba(248,113,113,0.25);
+            border-radius: 8px;
+            text-decoration: none;
+            color: #f87171;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            transition: all 0.25s ease;
+        }
+        .link-back:hover {
+            background: rgba(248,113,113,0.07);
+            border-color: rgba(248,113,113,0.5);
+            transform: translateY(-2px);
+        }
+
+        /* ── CONFIRM MODAL ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: #0f172a;
+            border: 1px solid rgba(248,113,113,0.3);
+            border-radius: 20px;
+            padding: 36px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+            animation: fadeUp 0.3s ease forwards;
+        }
+
+        .modal-icon { font-size: 44px; margin-bottom: 16px; display: block; }
+
+        .modal h3 {
+            font-family: 'Orbitron', monospace;
+            font-size: 16px;
+            font-weight: 900;
+            color: #f87171;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .modal p {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 14px;
+            color: rgba(148,163,184,0.7);
+            margin-bottom: 28px;
+            line-height: 1.6;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .modal-cancel {
+            padding: 11px 24px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            color: rgba(148,163,184,0.7);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-transform: uppercase;
+        }
+
+        .modal-cancel:hover {
+            background: rgba(255,255,255,0.05);
+            color: #f1f5f9;
+        }
+
+        .modal-confirm {
+            padding: 11px 24px;
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-family: 'Orbitron', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-transform: uppercase;
+            box-shadow: 0 4px 16px rgba(220,38,38,0.3);
+        }
+
+        .modal-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(220,38,38,0.45);
+        }
+
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="scanline"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <!-- CONFIRM DELETE MODAL -->
+    <div class="modal-overlay" id="deleteModal">
+        <div class="modal">
+            <span class="modal-icon">🗑️</span>
+            <h3>Delete User?</h3>
+            <p>This will permanently delete the user and <strong style="color:#f87171;">all their prediction history</strong>. This cannot be undone.</p>
+            <div class="modal-actions">
+                <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+                <a id="confirmDeleteBtn" href="#" class="modal-confirm">Delete</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ADMIN NAVBAR -->
+    <nav class="navbar">
+        <div style="display:flex; align-items:center;">
+            <h2>AI Detector</h2>
+            <div class="admin-nav-badge">
+                <span class="badge-dot"></span>
+                Admin
+            </div>
+        </div>
+        <div class="nav-links">
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/users" class="active">Users</a>
+            <a href="/admin/predictions">Predictions</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="page-wrapper">
+
+        <!-- HEADER -->
+        <div class="page-header">
+            <div class="header-left">
+                <p>🛡️ Admin Panel</p>
+                <h1>All Users</h1>
+            </div>
+            <div class="user-count-pill">
+                👥 {{ users | length }} Registered
+            </div>
+        </div>
+
+        <!-- ADD USER CARD -->
+        <div class="add-user-card">
+            <div class="add-user-title">➕ Add New User</div>
+            <form method="POST" action="/admin/add_user" class="add-user-form">
+                <div class="add-field">
+                    <label>Username</label>
+                    <input type="text" name="username" placeholder="Enter username" required>
+                </div>
+                <div class="add-field">
+                    <label>Password</label>
+                    <input type="password" name="password" placeholder="Enter password" required>
+                </div>
+                <button type="submit" class="add-btn">➕ Add User</button>
+            </form>
+        </div>
+
+        <!-- SEARCH -->
+        <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="Search by ID or username...">
+        </div>
+
+        <!-- TABLE -->
+        <div class="table-card">
+            {% if users %}
+            <table id="usersTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td><span class="id-pill">{{ user[0] }}</span></td>
+                        <td>
+                            <div class="username-cell">
+                                <div class="user-avatar">👤</div>
+                                <span class="username-text">{{ user[1] }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <button class="delete-btn"
+                                onclick="confirmDelete('/admin/delete_user/{{ user[0] }}', '{{ user[1] }}')">
+                                🗑️ Delete
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">
+                <span class="empty-icon">👥</span>
+                <h3>No Users Found</h3>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- BOTTOM -->
+        <div class="bottom-links">
+            <a href="/admin/dashboard" class="link-back">← Dashboard</a>
+        </div>
+
+    </div>
+
+    <script>
+        // Live search
+        document.getElementById('searchInput').addEventListener('input', function () {
+            const query = this.value.toLowerCase();
+            document.querySelectorAll('#usersTable tbody tr').forEach(row => {
+                row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none';
+            });
+        });
+
+        // Delete modal
+        function confirmDelete(url, username) {
+            document.getElementById('confirmDeleteBtn').href = url;
+            document.getElementById('deleteModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('deleteModal').classList.remove('active');
+        }
+
+        // Close modal on overlay click
+        document.getElementById('deleteModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+    </script>
+
+</body>
+</html>

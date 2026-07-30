@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Hallucination Detector</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(90px);
+            pointer-events: none;
+            z-index: 0;
+            animation: orbFloat 9s ease-in-out infinite;
+        }
+        .orb-1 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(96,165,250,0.1), transparent 70%);
+            top: -120px; right: -80px;
+        }
+        .orb-2 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(139,92,246,0.1), transparent 70%);
+            bottom: -100px; left: -80px;
+            animation-delay: -4s;
+        }
+        @keyframes orbFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-28px); }
+        }
+
+        .page-wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 48px 32px 80px;
+        }
+
+        /* ── HEADER ── */
+        .predict-header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeDown 0.6s ease forwards;
+        }
+
+        .predict-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(96,165,250,0.08);
+            border: 1px solid rgba(96,165,250,0.2);
+            border-radius: 50px;
+            padding: 6px 18px;
+            margin-bottom: 20px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            color: #60a5fa;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .badge-dot {
+            width: 6px; height: 6px;
+            background: #60a5fa;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.7); }
+        }
+
+        .predict-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 30px;
+            font-weight: 900;
+            background: linear-gradient(90deg, #f1f5f9, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .predict-subtitle {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 15px;
+            color: rgba(148,163,184,0.6);
+        }
+
+        /* ── FORM CARD ── */
+        .predict-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 24px;
+            padding: 40px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
+            animation: fadeUp 0.6s ease 0.1s forwards;
+            opacity: 0;
+        }
+
+        .predict-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 10%; right: 10%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(96,165,250,0.5), transparent);
+        }
+
+        .form-group {
+            margin-bottom: 28px;
+        }
+
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: #60a5fa;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .form-group label .label-icon {
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 16px 18px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 12px;
+            color: #f1f5f9;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 15px;
+            font-weight: 400;
+            line-height: 1.6;
+            resize: vertical;
+            transition: all 0.25s ease;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .form-group textarea::placeholder {
+            color: rgba(148,163,184,0.35);
+        }
+
+        .form-group textarea:focus {
+            border-color: rgba(96,165,250,0.45);
+            background: rgba(96,165,250,0.05);
+            box-shadow: 0 0 0 3px rgba(96,165,250,0.08);
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent);
+            margin: 4px 0 28px;
+        }
+
+        /* ── CHECK BUTTON ── */
+        .check-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #3b82f6, #7c3aed);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-family: 'Orbitron', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 30px rgba(59,130,246,0.35);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .check-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.12), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .check-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(59,130,246,0.5);
+        }
+
+        .check-btn:hover::before { opacity: 1; }
+
+        /* ── RESULT BOX ── */
+        .result-box {
+            margin-top: 32px;
+            padding: 32px;
+            border-radius: 20px;
+            backdrop-filter: blur(16px);
+            text-align: center;
+            animation: fadeUp 0.5s ease forwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-box.real {
+            background: rgba(52,211,153,0.06);
+            border: 1px solid rgba(52,211,153,0.25);
+        }
+
+        .result-box.hallucinated {
+            background: rgba(248,113,113,0.06);
+            border: 1px solid rgba(248,113,113,0.25);
+        }
+
+        .result-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 10%; right: 10%;
+            height: 1px;
+        }
+
+        .result-box.real::before {
+            background: linear-gradient(90deg, transparent, rgba(52,211,153,0.5), transparent);
+        }
+
+        .result-box.hallucinated::before {
+            background: linear-gradient(90deg, transparent, rgba(248,113,113,0.5), transparent);
+        }
+
+        .result-emoji {
+            font-size: 48px;
+            margin-bottom: 16px;
+            display: block;
+            animation: bounceIn 0.5s ease forwards;
+        }
+
+        @keyframes bounceIn {
+            0%   { transform: scale(0.5); opacity: 0; }
+            70%  { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .result-verdict {
+            font-family: 'Orbitron', monospace;
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            margin-bottom: 12px;
+        }
+
+        .result-box.real .result-verdict         { color: #34d399; }
+        .result-box.hallucinated .result-verdict  { color: #f87171; }
+
+        .result-confidence {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 14px;
+            color: rgba(148,163,184,0.7);
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        .confidence-bar {
+            height: 6px;
+            background: rgba(255,255,255,0.07);
+            border-radius: 99px;
+            overflow: hidden;
+            max-width: 320px;
+            margin: 0 auto;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            border-radius: 99px;
+            transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .result-box.real .confidence-fill {
+            background: linear-gradient(90deg, #10b981, #34d399);
+        }
+
+        .result-box.hallucinated .confidence-fill {
+            background: linear-gradient(90deg, #ef4444, #f87171);
+        }
+
+        /* ── BOTTOM LINKS ── */
+        .bottom-links {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 32px;
+            animation: fadeUp 0.6s ease 0.2s forwards;
+            opacity: 0;
+        }
+
+        .bottom-links a {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 22px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            transition: all 0.25s ease;
+        }
+
+        .link-history {
+            color: #a78bfa;
+            border: 1px solid rgba(139,92,246,0.25);
+        }
+
+        .link-history:hover {
+            background: rgba(139,92,246,0.08);
+            border-color: rgba(139,92,246,0.5);
+            transform: translateY(-2px);
+        }
+
+        .link-logout {
+            color: rgba(148,163,184,0.6);
+            border: 1px solid rgba(255,255,255,0.07);
+        }
+
+        .link-logout:hover {
+            background: rgba(248,113,113,0.07);
+            color: #f87171;
+            border-color: rgba(248,113,113,0.3);
+            transform: translateY(-2px);
+        }
+
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 600px) {
+            .predict-card { padding: 24px 20px; }
+            .predict-title { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <h2>AI Detector</h2>
+        <div class="nav-links">
+            <a href="/user/dashboard">Dashboard</a>
+            <a href="/user/predict" class="active">Predict</a>
+            <a href="/history">History</a>
+            <a href="/user/analytics">Analytics</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="page-wrapper">
+
+        <!-- HEADER -->
+        <div class="predict-header">
+            <div class="predict-badge">
+                <span class="badge-dot"></span>
+                ML Powered Detection
+            </div>
+            <h1 class="predict-title">Hallucination Detector</h1>
+            <p class="predict-subtitle">Enter a question and an AI-generated answer to check if it's real or hallucinated</p>
+        </div>
+
+        <!-- FORM CARD -->
+        <div class="predict-card">
+            <form method="POST">
+
+                <div class="form-group">
+                    <label>
+                        <span class="label-icon">❓</span>
+                        Enter Question
+                    </label>
+                    <textarea name="question" rows="3" placeholder="Enter the question that was asked to the AI..."></textarea>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="form-group">
+                    <label>
+                        <span class="label-icon">🤖</span>
+                        Enter LLM Answer
+                    </label>
+                    <textarea name="answer" rows="6" placeholder="Paste the AI-generated answer here..."></textarea>
+                </div>
+
+                <button type="submit" class="check-btn">⚡ &nbsp;Analyze Answer</button>
+
+            </form>
+
+            <!-- RESULT — Flask variables preserved exactly -->
+            {% if prediction %}
+                {% if prediction == 'Real' %}
+                    <div class="result-box real">
+                        <span class="result-emoji">✅</span>
+                        <div class="result-verdict">{{ prediction }}</div>
+                        <div class="result-confidence">Confidence Score: {{ probability }}%</div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: {{ probability }}%"></div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="result-box hallucinated">
+                        <span class="result-emoji">⚠️</span>
+                        <div class="result-verdict">{{ prediction }}</div>
+                        <div class="result-confidence">Confidence Score: {{ probability }}%</div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" style="width: {{ probability }}%"></div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+
+        </div>
+
+        <!-- BOTTOM LINKS -->
+        <div class="bottom-links">
+            <a href="/history" class="link-history">📋 View History</a>
+            <a href="/logout" class="link-logout">⏻ Logout</a>
+        </div>
+
+    </div>
+</body>
+</html>

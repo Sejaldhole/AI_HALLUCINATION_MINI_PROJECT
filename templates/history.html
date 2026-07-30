@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction History — AI Detector</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(90px);
+            pointer-events: none;
+            z-index: 0;
+            animation: orbFloat 9s ease-in-out infinite;
+        }
+        .orb-1 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(139,92,246,0.1), transparent 70%);
+            top: -120px; left: -80px;
+        }
+        .orb-2 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(96,165,250,0.09), transparent 70%);
+            bottom: -100px; right: -80px;
+            animation-delay: -4s;
+        }
+        @keyframes orbFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-28px); }
+        }
+
+        .page-wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 48px 32px 80px;
+        }
+
+        /* ── HEADER ── */
+        .history-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-bottom: 36px;
+            animation: fadeDown 0.6s ease forwards;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-left p {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            color: #a78bfa;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .header-left h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: 28px;
+            font-weight: 900;
+            background: linear-gradient(90deg, #f1f5f9, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+        }
+
+        .header-right a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 22px;
+            background: linear-gradient(135deg, #3b82f6, #7c3aed);
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 20px rgba(59,130,246,0.3);
+        }
+
+        .header-right a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(59,130,246,0.45);
+        }
+
+        /* ── TABLE CARD ── */
+        .table-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            overflow: hidden;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            animation: fadeUp 0.6s ease 0.1s forwards;
+            opacity: 0;
+            position: relative;
+        }
+
+        .table-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 10%; right: 10%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(139,92,246,0.5), transparent);
+        }
+
+        /* ── TABLE ── */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+
+        thead tr {
+            background: rgba(139,92,246,0.07);
+            border-bottom: 1px solid rgba(139,92,246,0.15);
+        }
+
+        th {
+            padding: 16px 20px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: #a78bfa;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            text-align: left;
+            background: transparent;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:last-child { border-bottom: none; }
+
+        tbody tr:hover {
+            background: rgba(255,255,255,0.03);
+        }
+
+        td {
+            padding: 16px 20px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 14px;
+            color: rgba(148,163,184,0.8);
+            border-bottom: none;
+            vertical-align: top;
+            max-width: 260px;
+        }
+
+        /* Truncate long text */
+        .td-question, .td-answer {
+            max-width: 240px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ── BADGES ── */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 14px;
+            border-radius: 50px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .badge-real {
+            background: rgba(52,211,153,0.1);
+            border: 1px solid rgba(52,211,153,0.25);
+            color: #34d399;
+        }
+
+        .badge-hallucinated {
+            background: rgba(248,113,113,0.1);
+            border: 1px solid rgba(248,113,113,0.25);
+            color: #f87171;
+        }
+
+        /* ── CONFIDENCE ── */
+        .confidence-wrap {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .conf-bar {
+            flex: 1;
+            height: 4px;
+            background: rgba(255,255,255,0.07);
+            border-radius: 99px;
+            overflow: hidden;
+            min-width: 60px;
+        }
+
+        .conf-fill-real {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #34d399);
+            border-radius: 99px;
+        }
+
+        .conf-fill-hallu {
+            height: 100%;
+            background: linear-gradient(90deg, #ef4444, #f87171);
+            border-radius: 99px;
+        }
+
+        .conf-value {
+            font-family: 'Orbitron', monospace;
+            font-size: 12px;
+            color: rgba(148,163,184,0.7);
+            white-space: nowrap;
+        }
+
+        /* ── EMPTY STATE ── */
+        .empty-state {
+            text-align: center;
+            padding: 80px 40px;
+        }
+
+        .empty-icon {
+            font-size: 52px;
+            margin-bottom: 20px;
+            display: block;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-family: 'Orbitron', monospace;
+            font-size: 16px;
+            color: rgba(148,163,184,0.5);
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 14px;
+            color: rgba(148,163,184,0.35);
+        }
+
+        /* ── BOTTOM LINKS ── */
+        .bottom-links {
+            display: flex;
+            gap: 12px;
+            margin-top: 28px;
+            animation: fadeUp 0.6s ease 0.2s forwards;
+            opacity: 0;
+        }
+
+        .link-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 22px;
+            border: 1px solid rgba(96,165,250,0.25);
+            border-radius: 8px;
+            text-decoration: none;
+            color: #60a5fa;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            transition: all 0.25s ease;
+        }
+
+        .link-back:hover {
+            background: rgba(96,165,250,0.07);
+            border-color: rgba(96,165,250,0.5);
+            transform: translateY(-2px);
+        }
+
+        .link-logout {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 22px;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 8px;
+            text-decoration: none;
+            color: rgba(148,163,184,0.5);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            transition: all 0.25s ease;
+        }
+
+        .link-logout:hover {
+            background: rgba(248,113,113,0.07);
+            color: #f87171;
+            border-color: rgba(248,113,113,0.3);
+            transform: translateY(-2px);
+        }
+
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .td-question, .td-answer { max-width: 120px; }
+            .conf-bar { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <h2>AI Detector</h2>
+        <div class="nav-links">
+            <a href="/user/dashboard">Dashboard</a>
+            <a href="/user/predict">Predict</a>
+            <a href="/history" class="active">History</a>
+            <a href="/user/analytics">Analytics</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="page-wrapper">
+
+        <!-- HEADER -->
+        <div class="history-header">
+            <div class="header-left">
+                <p>📋 Your Records</p>
+                <h1>Prediction History</h1>
+            </div>
+            <div class="header-right">
+                <a href="/user/predict">+ New Detection</a>
+            </div>
+        </div>
+
+        <!-- TABLE CARD -->
+        <div class="table-card">
+            {% if rows %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Question</th>
+                        <th>Answer</th>
+                        <th>Prediction</th>
+                        <th>Confidence</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in rows %}
+                    <tr>
+                        <td class="td-question">{{ row[0] }}</td>
+                        <td class="td-answer">{{ row[1] }}</td>
+                        <td>
+                            {% if row[2] == "Real" %}
+                                <span class="badge badge-real">✅ Real</span>
+                            {% else %}
+                                <span class="badge badge-hallucinated">⚠️ Hallucinated</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="confidence-wrap">
+                                <div class="conf-bar">
+                                    {% if row[2] == "Real" %}
+                                        <div class="conf-fill-real" style="width: {{ row[3] }}%"></div>
+                                    {% else %}
+                                        <div class="conf-fill-hallu" style="width: {{ row[3] }}%"></div>
+                                    {% endif %}
+                                </div>
+                                <span class="conf-value">{{ row[3] }}%</span>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">
+                <span class="empty-icon">🔍</span>
+                <h3>No Predictions Yet</h3>
+                <p>Start by running your first hallucination detection</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- BOTTOM LINKS -->
+        <div class="bottom-links">
+            <a href="/user/dashboard" class="link-back">← Dashboard</a>
+            <a href="/logout" class="link-logout">⏻ Logout</a>
+        </div>
+
+    </div>
+</body>
+</html>

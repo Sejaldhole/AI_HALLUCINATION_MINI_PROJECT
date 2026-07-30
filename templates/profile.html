@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile — AI Detector</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(90px);
+            pointer-events: none;
+            z-index: 0;
+            animation: orbFloat 9s ease-in-out infinite;
+        }
+        .orb-1 {
+            width: 450px; height: 450px;
+            background: radial-gradient(circle, rgba(251,191,36,0.08), transparent 70%);
+            top: -100px; right: -80px;
+        }
+        .orb-2 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(96,165,250,0.09), transparent 70%);
+            bottom: -100px; left: -80px;
+            animation-delay: -4s;
+        }
+        @keyframes orbFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-28px); }
+        }
+
+        .page-wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 48px 32px 80px;
+        }
+
+        /* ── PROFILE CARD ── */
+        .profile-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.09);
+            border-radius: 24px;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+            animation: fadeUp 0.7s ease forwards;
+            opacity: 0;
+        }
+
+        /* ── PROFILE BANNER ── */
+        .profile-banner {
+            height: 110px;
+            background: linear-gradient(135deg,
+                rgba(59,130,246,0.35) 0%,
+                rgba(124,58,237,0.35) 50%,
+                rgba(251,191,36,0.2) 100%);
+            position: relative;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+
+        .profile-banner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(96,165,250,0.06) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(96,165,250,0.06) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        /* ── AVATAR ── */
+        .avatar-wrap {
+            position: absolute;
+            bottom: -44px;
+            left: 36px;
+        }
+
+        .avatar {
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6, #7c3aed, #fbbf24);
+            border: 3px solid #020617;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+        }
+
+        .avatar-status {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            width: 16px;
+            height: 16px;
+            background: #34d399;
+            border-radius: 50%;
+            border: 2px solid #020617;
+            animation: statusPulse 2s infinite;
+        }
+
+        @keyframes statusPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(52,211,153,0.4); }
+            50%       { box-shadow: 0 0 0 5px rgba(52,211,153,0); }
+        }
+
+        /* ── PROFILE BODY ── */
+        .profile-body {
+            padding: 56px 36px 36px;
+        }
+
+        .profile-name {
+            font-family: 'Orbitron', monospace;
+            font-size: 22px;
+            font-weight: 900;
+            color: #f1f5f9;
+            letter-spacing: 2px;
+            margin-bottom: 4px;
+        }
+
+        .profile-role {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            color: #60a5fa;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            margin-bottom: 28px;
+        }
+
+        /* ── INFO ROWS ── */
+        .info-section {
+            margin-bottom: 28px;
+        }
+
+        .section-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 10px;
+            font-weight: 700;
+            color: rgba(148,163,184,0.4);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            padding: 14px 18px;
+            background: rgba(255,255,255,0.025);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            transition: all 0.25s ease;
+        }
+
+        .info-row:hover {
+            background: rgba(255,255,255,0.045);
+            border-color: rgba(96,165,250,0.15);
+        }
+
+        .info-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+            margin-right: 14px;
+        }
+
+        .info-icon.user  { background: rgba(96,165,250,0.12); border: 1px solid rgba(96,165,250,0.2); }
+        .info-icon.stats { background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.2); }
+
+        .info-label {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(148,163,184,0.5);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .info-value {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            color: #f1f5f9;
+        }
+
+        .info-value.highlight {
+            font-family: 'Orbitron', monospace;
+            font-size: 22px;
+            font-weight: 900;
+            color: #60a5fa;
+        }
+
+        /* ── ACTION BUTTONS ── */
+        .profile-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn-dashboard {
+            flex: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 13px 24px;
+            background: linear-gradient(135deg, #3b82f6, #7c3aed);
+            border-radius: 10px;
+            text-decoration: none;
+            color: white;
+            font-family: 'Orbitron', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 20px rgba(59,130,246,0.3);
+        }
+
+        .btn-dashboard:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(59,130,246,0.45);
+        }
+
+        .btn-logout {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 13px 24px;
+            background: transparent;
+            border: 1px solid rgba(248,113,113,0.25);
+            border-radius: 10px;
+            text-decoration: none;
+            color: #f87171;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            transition: all 0.25s ease;
+        }
+
+        .btn-logout:hover {
+            background: rgba(248,113,113,0.08);
+            border-color: rgba(248,113,113,0.5);
+            transform: translateY(-2px);
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 500px) {
+            .profile-body { padding: 56px 20px 28px; }
+            .profile-actions { flex-direction: column; }
+            .btn-dashboard { flex: unset; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <h2>AI Detector</h2>
+        <div class="nav-links">
+            <a href="/user/dashboard">Dashboard</a>
+            <a href="/user/predict">Predict</a>
+            <a href="/history">History</a>
+            <a href="/user/analytics">Analytics</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="page-wrapper">
+        <div class="profile-card">
+
+            <!-- BANNER + AVATAR -->
+            <div class="profile-banner">
+                <div class="avatar-wrap">
+                    <div class="avatar">👤</div>
+                    <div class="avatar-status"></div>
+                </div>
+            </div>
+
+            <!-- BODY -->
+            <div class="profile-body">
+
+                <div class="profile-name">{{ username }}</div>
+                <div class="profile-role">Registered User · AI Detector</div>
+
+                <!-- ACCOUNT INFO -->
+                <div class="info-section">
+                    <div class="section-title">Account Info</div>
+                    <div class="info-row">
+                        <div class="info-icon user">👤</div>
+                        <div>
+                            <div class="info-label">Username</div>
+                            <div class="info-value">{{ username }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STATS -->
+                <div class="info-section">
+                    <div class="section-title">Activity Stats</div>
+                    <div class="info-row">
+                        <div class="info-icon stats">🔬</div>
+                        <div>
+                            <div class="info-label">Total Predictions</div>
+                            <div class="info-value highlight">{{ total }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACTIONS -->
+                <div class="profile-actions">
+                    <a href="/user/dashboard" class="btn-dashboard">← Dashboard</a>
+                    <a href="/logout" class="btn-logout">⏻ Logout</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

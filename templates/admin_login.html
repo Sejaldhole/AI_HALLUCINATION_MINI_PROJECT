@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login — AI Detector</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+
+        .login-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Orbs — red/orange tint to distinguish admin from user */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: 0;
+            animation: orbFloat 8s ease-in-out infinite;
+        }
+        .orb-1 {
+            width: 450px; height: 450px;
+            background: radial-gradient(circle, rgba(239,68,68,0.12), transparent 70%);
+            top: -100px; left: -100px;
+        }
+        .orb-2 {
+            width: 380px; height: 380px;
+            background: radial-gradient(circle, rgba(251,146,60,0.1), transparent 70%);
+            bottom: -80px; right: -80px;
+            animation-delay: -4s;
+        }
+        .orb-3 {
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(139,92,246,0.08), transparent 70%);
+            top: 50%; left: 60%;
+            animation-delay: -2s;
+        }
+        @keyframes orbFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-25px); }
+        }
+
+        /* Scanline */
+        .scanline {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(239,68,68,0.3), transparent);
+            animation: scanDown 7s linear infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+        @keyframes scanDown {
+            0%   { top: -2px; opacity: 0; }
+            10%  { opacity: 1; }
+            90%  { opacity: 1; }
+            100% { top: 100vh; opacity: 0; }
+        }
+
+        /* Admin card */
+        .admin-card {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 420px;
+            padding: 48px 44px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(239,68,68,0.15);
+            border-radius: 24px;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            box-shadow:
+                0 25px 60px rgba(0,0,0,0.55),
+                0 0 40px rgba(239,68,68,0.05),
+                inset 0 1px 0 rgba(255,255,255,0.07);
+            animation: fadeUp 0.7s ease forwards;
+            opacity: 0;
+        }
+
+        .admin-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 10%; right: 10%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(239,68,68,0.6), transparent);
+            border-radius: 99px;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Icon */
+        .admin-icon {
+            width: 60px; height: 60px;
+            background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(251,146,60,0.15));
+            border: 1px solid rgba(239,68,68,0.3);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            margin: 0 auto 24px;
+            box-shadow: 0 0 20px rgba(239,68,68,0.15);
+        }
+
+        /* Admin badge */
+        .admin-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: rgba(239,68,68,0.08);
+            border: 1px solid rgba(239,68,68,0.2);
+            border-radius: 50px;
+            padding: 5px 14px;
+            margin: 0 auto 16px;
+            width: fit-content;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: #f87171;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+        }
+
+        .badge-dot {
+            width: 5px; height: 5px;
+            background: #f87171;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .admin-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 20px;
+            font-weight: 900;
+            text-align: center;
+            background: linear-gradient(90deg, #fca5a5, #f87171, #fb923c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+
+        .admin-subtitle {
+            text-align: center;
+            color: rgba(148,163,184,0.5);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            letter-spacing: 1px;
+            margin-bottom: 36px;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            color: #f87171;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 15px;
+            opacity: 0.45;
+            pointer-events: none;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px 14px 44px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(239,68,68,0.15);
+            border-radius: 10px;
+            color: #f1f5f9;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.25s ease;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        .form-group input::placeholder {
+            color: rgba(148,163,184,0.35);
+        }
+
+        .form-group input:focus {
+            border-color: rgba(239,68,68,0.4);
+            background: rgba(239,68,68,0.05);
+            box-shadow: 0 0 0 3px rgba(239,68,68,0.08);
+        }
+
+        /* Login button */
+        .admin-btn {
+            width: 100%;
+            padding: 15px;
+            margin-top: 10px;
+            background: linear-gradient(135deg, #dc2626, #ea580c);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-family: 'Orbitron', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 24px rgba(220,38,38,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .admin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 36px rgba(220,38,38,0.45);
+        }
+
+        .admin-btn:hover::before { opacity: 1; }
+
+        /* Warning note */
+        .admin-warning {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 24px;
+            padding: 12px 16px;
+            background: rgba(251,191,36,0.06);
+            border: 1px solid rgba(251,191,36,0.15);
+            border-radius: 10px;
+        }
+
+        .admin-warning span {
+            font-size: 16px;
+        }
+
+        .admin-warning p {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 12px;
+            color: rgba(251,191,36,0.7);
+            letter-spacing: 0.5px;
+            line-height: 1.5;
+        }
+
+        /* Flash messages */
+        .flash {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        .flash-error {
+            background: rgba(248,113,113,0.1);
+            border: 1px solid rgba(248,113,113,0.3);
+            color: #f87171;
+        }
+        .flash-success {
+            background: rgba(52,211,153,0.1);
+            border: 1px solid rgba(52,211,153,0.3);
+            color: #34d399;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="scanline"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="login-wrapper">
+        <div class="admin-card">
+
+            <div class="admin-icon">🛡️</div>
+
+            <div class="admin-badge">
+                <span class="badge-dot"></span>
+                Admin Access Only
+            </div>
+
+            <h1 class="admin-title">Admin Portal</h1>
+            <p class="admin-subtitle">Restricted area — authorized personnel only</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+                <div class="form-group">
+                    <label>Admin Username</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">🛡️</span>
+                        <input type="text" name="username" placeholder="Enter admin username" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">🔑</span>
+                        <input type="password" name="password" placeholder="Enter admin password" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="admin-btn">🔐 &nbsp;Access Admin Panel</button>
+            </form>
+
+            <div class="admin-warning">
+                <span>⚠️</span>
+                <p>Unauthorized access attempts are logged and monitored.</p>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

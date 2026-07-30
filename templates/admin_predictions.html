@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Predictions — Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(90px);
+            pointer-events: none;
+            z-index: 0;
+            animation: orbFloat 9s ease-in-out infinite;
+        }
+        .orb-1 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(239,68,68,0.09), transparent 70%);
+            top: -120px; right: -80px;
+        }
+        .orb-2 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(251,146,60,0.07), transparent 70%);
+            bottom: -100px; left: -80px;
+            animation-delay: -4s;
+        }
+        @keyframes orbFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-28px); }
+        }
+
+        .scanline {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(239,68,68,0.25), transparent);
+            animation: scanDown 7s linear infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+        @keyframes scanDown {
+            0%   { top: -2px; opacity: 0; }
+            10%  { opacity: 1; }
+            90%  { opacity: 1; }
+            100% { top: 100vh; opacity: 0; }
+        }
+
+        /* Admin navbar */
+        .navbar {
+            background: rgba(20,4,4,0.6) !important;
+            border-bottom: 1px solid rgba(239,68,68,0.15) !important;
+        }
+        .navbar h2 {
+            background: linear-gradient(90deg, #f87171, #fb923c) !important;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .nav-links a:hover {
+            color: #f87171 !important;
+            background: rgba(239,68,68,0.08) !important;
+            border-color: rgba(239,68,68,0.2) !important;
+        }
+
+        .admin-nav-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.25);
+            border-radius: 50px;
+            padding: 4px 12px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            color: #f87171;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-left: 8px;
+        }
+
+        .badge-dot {
+            width: 5px; height: 5px;
+            background: #f87171;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.3; }
+        }
+
+        /* ── PAGE ── */
+        .page-wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 48px 32px 80px;
+        }
+
+        /* ── HEADER ── */
+        .page-header {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            margin-bottom: 36px;
+            flex-wrap: wrap;
+            gap: 16px;
+            animation: fadeDown 0.6s ease forwards;
+        }
+
+        .header-left p {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            color: #f87171;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .header-left h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: 26px;
+            font-weight: 900;
+            background: linear-gradient(90deg, #f1f5f9, #fb923c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+        }
+
+        .count-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(251,146,60,0.08);
+            border: 1px solid rgba(251,146,60,0.2);
+            border-radius: 50px;
+            padding: 8px 20px;
+            font-family: 'Orbitron', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: #fb923c;
+        }
+
+        /* ── FILTER BAR ── */
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            animation: fadeUp 0.6s ease 0.1s forwards;
+            opacity: 0;
+            flex-wrap: wrap;
+        }
+
+        .search-wrap {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 15px;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 13px 18px 13px 46px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(239,68,68,0.15);
+            border-radius: 10px;
+            color: #f1f5f9;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.25s ease;
+            box-sizing: border-box;
+        }
+
+        #searchInput::placeholder { color: rgba(148,163,184,0.35); }
+        #searchInput:focus {
+            border-color: rgba(239,68,68,0.35);
+            background: rgba(239,68,68,0.04);
+            box-shadow: 0 0 0 3px rgba(239,68,68,0.07);
+        }
+
+        /* Filter buttons */
+        .filter-btn {
+            padding: 13px 20px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            color: rgba(148,163,184,0.6);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            white-space: nowrap;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active-filter {
+            background: rgba(239,68,68,0.08);
+            border-color: rgba(239,68,68,0.25);
+            color: #f87171;
+        }
+
+        .filter-btn.green.active-filter,
+        .filter-btn.green:hover {
+            background: rgba(52,211,153,0.08);
+            border-color: rgba(52,211,153,0.25);
+            color: #34d399;
+        }
+
+        .filter-btn.red.active-filter,
+        .filter-btn.red:hover {
+            background: rgba(248,113,113,0.08);
+            border-color: rgba(248,113,113,0.25);
+            color: #f87171;
+        }
+
+        /* ── TABLE CARD ── */
+        .table-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 20px;
+            overflow: hidden;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            animation: fadeUp 0.6s ease 0.15s forwards;
+            opacity: 0;
+            position: relative;
+        }
+
+        .table-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 10%; right: 10%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(251,146,60,0.4), transparent);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+
+        thead tr {
+            background: rgba(251,146,60,0.05);
+            border-bottom: 1px solid rgba(251,146,60,0.12);
+        }
+
+        th {
+            padding: 16px 18px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: #fb923c;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            text-align: left;
+            background: transparent;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            transition: background 0.2s ease;
+        }
+
+        tbody tr:last-child { border-bottom: none; }
+        tbody tr:hover { background: rgba(251,146,60,0.03); }
+
+        td {
+            padding: 14px 18px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 14px;
+            color: rgba(148,163,184,0.75);
+            border-bottom: none;
+            vertical-align: middle;
+        }
+
+        /* ID pill */
+        .id-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+            height: 32px;
+            padding: 0 8px;
+            background: rgba(251,146,60,0.1);
+            border: 1px solid rgba(251,146,60,0.2);
+            border-radius: 8px;
+            font-family: 'Orbitron', monospace;
+            font-size: 11px;
+            font-weight: 700;
+            color: #fb923c;
+        }
+
+        /* User cell */
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 30px; height: 30px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, rgba(248,113,113,0.25), rgba(251,146,60,0.25));
+            border: 1px solid rgba(248,113,113,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #f1f5f9;
+            font-size: 14px;
+        }
+
+        /* Truncate long text */
+        .td-truncate {
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Prediction badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .badge-real {
+            background: rgba(52,211,153,0.1);
+            border: 1px solid rgba(52,211,153,0.25);
+            color: #34d399;
+        }
+
+        .badge-hallucinated {
+            background: rgba(248,113,113,0.1);
+            border: 1px solid rgba(248,113,113,0.25);
+            color: #f87171;
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 80px 40px;
+        }
+        .empty-icon { font-size: 48px; margin-bottom: 16px; display: block; opacity: 0.4; }
+        .empty-state h3 {
+            font-family: 'Orbitron', monospace;
+            font-size: 14px;
+            color: rgba(148,163,184,0.4);
+            letter-spacing: 2px;
+        }
+
+        /* ── BOTTOM ── */
+        .bottom-links {
+            display: flex;
+            gap: 12px;
+            margin-top: 28px;
+            animation: fadeUp 0.6s ease 0.25s forwards;
+            opacity: 0;
+        }
+
+        .link-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 22px;
+            border: 1px solid rgba(248,113,113,0.25);
+            border-radius: 8px;
+            text-decoration: none;
+            color: #f87171;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            transition: all 0.25s ease;
+        }
+        .link-back:hover {
+            background: rgba(248,113,113,0.07);
+            border-color: rgba(248,113,113,0.5);
+            transform: translateY(-2px);
+        }
+
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .td-truncate { max-width: 100px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="scanline"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <!-- ADMIN NAVBAR -->
+    <nav class="navbar">
+        <div style="display:flex; align-items:center;">
+            <h2>AI Detector</h2>
+            <div class="admin-nav-badge">
+                <span class="badge-dot"></span>
+                Admin
+            </div>
+        </div>
+        <div class="nav-links">
+            <a href="/admin/dashboard">Dashboard</a>
+            <a href="/admin/users">Users</a>
+            <a href="/admin/predictions" class="active">Predictions</a>
+            <a href="/logout">Logout</a>
+        </div>
+    </nav>
+
+    <div class="page-wrapper">
+
+        <!-- HEADER -->
+        <div class="page-header">
+            <div class="header-left">
+                <p>🛡️ Admin Panel</p>
+                <h1>All Predictions</h1>
+            </div>
+            <div class="count-pill">
+                🔬 {{ predictions | length }} Total
+            </div>
+        </div>
+
+        <!-- FILTER BAR -->
+        <div class="filter-bar">
+            <div class="search-wrap">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="Search by user, question or answer...">
+            </div>
+            <button class="filter-btn active-filter" id="filterAll" onclick="filterTable('all')">All</button>
+            <button class="filter-btn green" id="filterReal" onclick="filterTable('real')">✅ Real</button>
+            <button class="filter-btn red" id="filterHallu" onclick="filterTable('hallucinated')">⚠️ Hallucinated</button>
+        </div>
+
+        <!-- TABLE -->
+        <div class="table-card">
+            {% if predictions %}
+            <table id="predictionsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Question</th>
+                        <th>Answer</th>
+                        <th>Prediction</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in predictions %}
+                    <tr data-prediction="{{ p[4] | lower }}">
+                        <td><span class="id-pill">{{ p[0] }}</span></td>
+                        <td>
+                            <div class="user-cell">
+                                <div class="user-avatar">👤</div>
+                                <span class="user-name">{{ p[1] }}</span>
+                            </div>
+                        </td>
+                        <td><span class="td-truncate" title="{{ p[2] }}">{{ p[2] }}</span></td>
+                        <td><span class="td-truncate" title="{{ p[3] }}">{{ p[3] }}</span></td>
+                        <td>
+                            {% if p[4] == "Real" %}
+                                <span class="badge badge-real">✅ Real</span>
+                            {% else %}
+                                <span class="badge badge-hallucinated">⚠️ Hallucinated</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">
+                <span class="empty-icon">🔬</span>
+                <h3>No Predictions Yet</h3>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- BOTTOM -->
+        <div class="bottom-links">
+            <a href="/admin/dashboard" class="link-back">← Dashboard</a>
+        </div>
+
+    </div>
+
+    <script>
+        // ── Live search ──
+        document.getElementById('searchInput').addEventListener('input', function () {
+            const query = this.value.toLowerCase();
+            document.querySelectorAll('#predictionsTable tbody tr').forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        });
+
+        // ── Filter by prediction type ──
+        function filterTable(type) {
+            // Update button states
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active-filter'));
+            const map = { all: 'filterAll', real: 'filterReal', hallucinated: 'filterHallu' };
+            document.getElementById(map[type]).classList.add('active-filter');
+
+            document.querySelectorAll('#predictionsTable tbody tr').forEach(row => {
+                const pred = row.getAttribute('data-prediction') || '';
+                if (type === 'all') {
+                    row.style.display = '';
+                } else if (type === 'real') {
+                    row.style.display = pred === 'real' ? '' : 'none';
+                } else {
+                    row.style.display = pred !== 'real' ? '' : 'none';
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>
